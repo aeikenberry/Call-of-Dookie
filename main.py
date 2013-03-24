@@ -14,6 +14,10 @@ if not pygame.font:
 if not pygame.mixer:
     print ('sound is fucked.')
 
+# TODO's: 
+#   Change resolution
+
+
 #
 #   Static
 #
