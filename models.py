@@ -58,12 +58,12 @@ class Bouncer(pygame.sprite.DirtySprite):
 
 class LinePerson(pygame.sprite.DirtySprite):
     """Base class for people standing in line."""
-    def __init__(self, image, green, red, speed, position, pos_number):
+    def __init__(self, image, green, red, speed, coords, pos_number):
         pygame.sprite.DirtySprite.__init__(self)
         self.image = load_image2(image)
         self.speed = speed
         self.rect = self.image.get_rect()
-        self.rect = self.rect.move(position)
+        self.rect = self.rect.move(coords)
         self.position = pos_number
         self.selected = False
         self.chosen = False
@@ -90,7 +90,7 @@ class LinePerson(pygame.sprite.DirtySprite):
         self.dirty = 1
 
     def switch_with(self, patron):
-        position_1, position_2 = 0, 0
+        #position_1, position_2 = 0, 0
         if self.position > patron.position:
             position_1, position_2 = self.position, patron.position
         else:
@@ -126,8 +126,10 @@ class LinePerson(pygame.sprite.DirtySprite):
         self.dirty = 1
         patron.dirty = 1
 
-    def walk_to(position):
-        pass
+    def shift_left_one(self):
+        self.rect.move_ip(-100, 0)
+        self.position -= 1
+        self.dirty = 1
 
     def walk_out(self):
         pass
@@ -150,14 +152,18 @@ class LinePerson(pygame.sprite.DirtySprite):
     def vomit(self):
         pass
 
+    def vanish(self):
+        self.rect.move_ip(-600, 0)
+        self.position = -1
+        self.dirty = 1
 
 class PointerHand(pygame.sprite.DirtySprite):
     "Severed Hand"
-    def __init__(self, x, y):
+    def __init__(self, coords):
         pygame.sprite.DirtySprite.__init__(self)
         self.image = load_image2('PointerHand.png')
         self.rect = self.image.get_rect()
-        self.rect = self.rect.move((x, y))
+        self.rect = self.rect.move(coords)
         self.position = 4
         self.person_chosen = False
 
@@ -165,10 +171,10 @@ class PointerHand(pygame.sprite.DirtySprite):
         if self.position > 1:
             self.rect.move_ip(-100, 0)
             self.dirty = 1
-            self.position = self.position - 1
+            self.position -= 1
 
     def move_right(self):
         if self.position < 7:
             self.rect.move_ip(100, 0)
             self.dirty = 1
-            self.position = self.position + 1
+            self.position += 1

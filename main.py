@@ -31,7 +31,8 @@ positions = {
     'POS_4': (500, 325),
     'POS_5': (600, 325),
     'POS_6': (700, 325),
-    'POS_7': (800, 325)
+    'POS_7': (800, 325),
+    'HAND': (500, 630),
 }
 
 #
@@ -60,11 +61,12 @@ def main():
     # do some sound imports here
 
     #
-    #   Character Inits
+    #   Character/Level Inits
     #
+    speed = 150
 
     bouncer = Bouncer()
-    hand = PointerHand(500, 630)
+    hand = PointerHand(positions['HAND'])
 
     whitey = LinePerson(
         'BlondeBoyPatron.png',
@@ -113,8 +115,17 @@ def main():
             return False
 
     running = True
+    time_to_shift = False
+    game_over = False
+    counter = 0
+
     while running:
         clock.tick(60)
+
+        #screen.fill((0, 0, 0))
+
+        if counter == speed:
+            time_to_shift = True
 
         # Events
         for event in pygame.event.get():
@@ -181,10 +192,31 @@ def main():
         if bouncer.unpointing and not bouncer.point.stopped:
             screen.blit(bouncer.point.prev(), (0, 400))
 
+        ## Increment the counts and move people if it's their time ##
+        ## We need to remove the person who goes in the door or does a pee from all_patrons before this ##
+        if time_to_shift:
+            for patron in all_patrons:
+                if patron.position == 1:
+                    all_patrons.remove(patron)
+                    patron.vanish()
+                patron.shift_left_one()
+            counter = 0
+            time_to_shift = False
+            if len(all_patrons) == 0:
+                game_over = True
+
+        if game_over:
+            font = pygame.font.Font(None, 36)
+            text = font.render("Nice Job, Dude!", 1, (225, 100, 95))
+            text_pos = text.get_rect(centerx=screen.get_width()/2, centery=screen.get_height()/2)
+            screen.blit(text, text_pos)
+        ## UPDATE FRAME ##
         all_sprites.update()
 
         rects = all_sprites.draw(screen)
         pygame.display.update(rects)
+
+        counter += 1
 
     # game over
     pygame.quit()
