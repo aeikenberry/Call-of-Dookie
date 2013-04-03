@@ -55,11 +55,12 @@ class Bouncer(pygame.sprite.DirtySprite):
         "This is what will run all the time"
         # only put stuff here if it needs to update
 
+all_patrons = pygame.sprite.LayeredDirty()
 
 class LinePerson(pygame.sprite.DirtySprite):
     """Base class for people standing in line."""
     def __init__(self, image, green, red, speed, coords, pos_number):
-        pygame.sprite.DirtySprite.__init__(self)
+        pygame.sprite.DirtySprite.__init__(self, all_patrons)
         self.image = load_image2(image)
         self.speed = speed
         self.rect = self.image.get_rect()
@@ -70,6 +71,7 @@ class LinePerson(pygame.sprite.DirtySprite):
         self.original_state = image
         self.green = green
         self.red = red
+        self.dirty = 1
 
     def walk_into_line(self):
         pass

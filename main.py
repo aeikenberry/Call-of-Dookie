@@ -63,47 +63,47 @@ def main():
     #
     #   Character/Level Inits
     #
-    speed = 150
+    speed = 100
+
+    reserve_patrons = 20
 
     bouncer = Bouncer()
     hand = PointerHand(positions['HAND'])
 
-    whitey = LinePerson(
+    LinePerson(
         'BlondeBoyPatron.png',
         'BlondeBoyPatron_GreenSelect2.png',
         'BlondeBoyPatron_RedSelect2.png',
         3, positions['POS_4'], 4)
 
-    pos5 = LinePerson(
+    LinePerson(
         'BlondeBoyPatron.png',
         'BlondeBoyPatron_GreenSelect2.png',
         'BlondeBoyPatron_RedSelect2.png',
         3, positions['POS_5'], 5)
 
-    pos6 = LinePerson(
+    LinePerson(
         'BlondeBoyPatron.png',
         'BlondeBoyPatron_GreenSelect2.png',
         'BlondeBoyPatron_RedSelect2.png',
         3, positions['POS_6'], 6)
 
-    pos7 = LinePerson(
+    LinePerson(
         'BlondeBoyPatron.png',
         'BlondeBoyPatron_GreenSelect2.png',
         'BlondeBoyPatron_RedSelect2.png',
         3, positions['POS_7'], 7)
 
-    pos1 = LinePerson(
+    LinePerson(
         'SweatshirtHipster.png',
         'SweatshirtHipster_GreenSelect.png',
         'SweatshirtHipster_RedSelect.png',
         3, positions['POS_2'], 2)
 
     constants = pygame.sprite.LayeredDirty((bouncer, hand))
-    all_patrons = pygame.sprite.LayeredDirty(whitey, pos5, pos6, pos7, pos1)
 
-    all_sprites = pygame.sprite.LayeredDirty(constants, all_patrons)
-    all_sprites.clear(screen, background)
-
+    constants.clear(screen, background)
+    all_patrons.clear(screen, background)
     #
     #   Game Loop
     #
@@ -124,9 +124,10 @@ def main():
 
         #screen.fill((0, 0, 0))
 
-        if counter == speed:
+        if counter == speed and len(all_patrons) != 0:
             time_to_shift = True
 
+        all_patrons.update()
         # Events
         for event in pygame.event.get():
             if event.type == QUIT:
@@ -196,25 +197,46 @@ def main():
         ## We need to remove the person who goes in the door or does a pee from all_patrons before this ##
         if time_to_shift:
             for patron in all_patrons:
-                if patron.position == 1:
+                patron.shift_left_one()
+                if patron.position == 0:
                     all_patrons.remove(patron)
                     patron.vanish()
-                patron.shift_left_one()
+            if reserve_patrons > 0:
+                        LinePerson(
+                            'SweatshirtHipster.png',
+                            'SweatshirtHipster_GreenSelect.png',
+                            'SweatshirtHipster_RedSelect.png',
+                            3, positions['POS_7'], 7)
+                        reserve_patrons -= 1
+                        all_patrons.update()
             counter = 0
             time_to_shift = False
             if len(all_patrons) == 0:
                 game_over = True
+
+            print len(all_patrons)
+            print game_over
+        else:
+            all_patrons.draw(screen)
 
         if game_over:
             font = pygame.font.Font(None, 36)
             text = font.render("Nice Job, Dude!", 1, (225, 100, 95))
             text_pos = text.get_rect(centerx=screen.get_width()/2, centery=screen.get_height()/2)
             screen.blit(text, text_pos)
-        ## UPDATE FRAME ##
-        all_sprites.update()
+            game_over = False
+            print 'game over should be on screen'
 
-        rects = all_sprites.draw(screen)
+        ## UPDATE FRAME ##
+        constants.update()
+        all_patrons.update()
+
+        p_rects = all_patrons.draw(screen)
+        pygame.display.update(p_rects)
+        
+        rects = constants.draw(screen)
         pygame.display.update(rects)
+
 
         counter += 1
 
